@@ -6,8 +6,18 @@ modified: '2021-09-05T15:31:09.728Z'
 
 # INITIALIZE PROJECT NODEJS ARCHITETURY
 
+#### INIT TYPESCRIPT
+
+```shell
+npm i -D typescript ts-node-dev
 ```
-mkdir public public/js public/img public/css views views/layout views/partials controller routes config app middlewares
+
+```shell
+npm init
+```
+
+```shell
+tsc --init
 ```
 
 #### STRUCTURE USING JS
@@ -45,45 +55,38 @@ mkdir public public/js public/img public/css views views/layout views/partials c
       - Auth.js
       - CheckAuth.js
     - helpers
-  
---------------------    
-#### CREATE STRUCTURE FOLDERS USING JS
-    
-```
-mkdir tests src src/database src/database/settings src/database/tables src/database/migration src/database/procedules src/views src/views/layouts src/views/home src/views/partials src/public src/public/css src/public/js src/public/images src/controllers src/routes src/app src/config src/middlewares src/helpers
-```
 
+--------------------
 #### CREATE STRUCTURE FOLDERS USING TS
-```
-mkdir tests src src/database src/database/settings src/database/tables src/database/migration src/database/procedules src/views src/views/layouts src/views/home src/views/partials src/public src/public/css src/public/js src/public/images src/controllers src/routes src/app src/config src/middlewares src/helpers
 
+```shell
+mkdir tests src src/database src/database/settings src/database/tables src/database/migration src/database/procedules src/views src/views/layouts src/views/home src/views/partials src/public src/public/css src/public/js src/public/images src/controllers src/routes src/app src/config src/middlewares src/helpers src/models
 ```
-------------------- 
 
-#### CREATE FILES STRUCTURE FILES JS
-  ##### GENERATE SERVER.JS
-```
-touch src/Server.js src/app/App.js  src/routes/Routes.js src/database/settings/Sql.js src/database/tables/ClientsTable.js src/database/settings/ConnSequelize.js src/config/ConnDatabase.js src/views/home/index.hbs src/views/layouts/main.hbs src/views/partials/_nav.hbs src/views/partials/_footer.hbs src/controllers/homeController.js src/middlewares/checkCredencials.js src/middlewares/auth.js src/database/procedules/ExemplaProcedules.js ./.env
-```
+-------------------
 
 #### CREATE FILES STRUCTURE FILES TS
-```
-touch src/Server.js src/app/App.js  src/routes/Routes.js src/database/settings/Sql.js src/database/settings/sequelize.js src/config/ConnDatabase.js src/views/home/index.hbs src/views/layouts/main.hbs src/views/partials/_nav.hbs src/views/partials/_footer.hbs src/controllers/homeController.js src/middlewares/checkCredencials.js
+```shell
+touch src/Server.ts src/app/App.ts  src/routes/Routes.ts src/database/settings/Sql.ts src/database/tables/ClientsTable.ts src/database/settings/ConnSequelize.ts src/config/ConnDatabase.ts src/views/home/index.hbs src/views/layouts/main.hbs src/views/partials/_nav.hbs src/views/partials/_footer.hbs src/controllers/homeController.ts src/middlewares/checkCredencials.ts src/middlewares/auth.ts src/database/procedules/ExemplaProcedules.ts ./.env
 ```
 
 ---------------------------
 
 #### INSTALL DEPENDENCIES JS (*Not use API*)
 ```
-npm i bcrypt body-parser dotenv express express-flash express-handlebars express-session multer mysql mysql2 nodemailer passport passport-local sequelize sharp axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars
+npm i bcrypt body-parser dotenv express express-flash express-handlebars express-session multer mysql mysql2 nodemailer passport passport-local sequelize sharp axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars cors
 ```
-#### INSTALL DEPENDENCIES JS (*Use API*)
+#### INSTALL TYPES USE TYPESCRIPT
+
 ```
-npm i bcrypt dotenv express mysql mysql2 nodemailer passport passport-local sequelize axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars
+npm i -D @types/express @types/express-handlebars  @types/body-parser @types/express-session @types/express-flash @types/cors @types/mysql @types/bcrypt @types/
 ```
+
+
+
 #### INSTALL DEPENDENCIES TS
 ```
-npm i bcrypt dotenv express mysql mysql2 nodemailer passport passport-local sequelize axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars
+npm i bcrypt dotenv express mysql mysql2 nodemailer passport passport-local sequelize axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars 
 ```
 
 ------------------------------------
@@ -91,20 +94,24 @@ npm i bcrypt dotenv express mysql mysql2 nodemailer passport passport-local sequ
 
 #### INSERT CODE STRUCTS JS
 *App.js*
-```
+```javascript
 echo "
-const express = require('express')
-const bodyParser = require('body-parser')
-const router = require('../routers/routes')
-const hbs = require('express-handlebars')
-const path = require('path')
-const session = require('express-session')
-const flash = require('express-flash')
+
+import express from 'express'
+import bodyParser from 'body-parser'
+import router from '../routers/routes'
+import hbs from 'express-handlebars'
+import path from 'path'
+import session from'express-session'
+import flash from'express-flash'
+import cors from 'cors'
+import { Request, Response, NextFunction } from 'express'
 
 const passport = require('passport')
 require('../middleware/checkCredencials')(passport)
 
 class App {
+    public express: express.Application
     constructor() {
         this.express = express()
         this.middlewares()
@@ -114,21 +121,23 @@ class App {
         this.routes()
         this.engine()
     }
-    middlewares() {
+    private middlewares(): void {
         this.express.use(bodyParser.urlencoded({ extended: false }))
         this.express.use(bodyParser.json())
+        this.express.use(express.json())
+        this.express.use(cors())
         this.express.use(express.static(path.join(__dirname, '../', 'public')))
     }
-    session() {
+    private session(): void {
         this.express.use(session({
             secret: process.env.SECRETKEY_SESSION || 'somesecrettoken',
             resave: true,
             saveUninitialized: true
         }))
     }
-    flash() {
+    private flash(): void {
         this.express.use(flash())
-        this.express.use((req, res, next) => {
+        this.express.use((req:Request, res:Response, next: NextFunction) => {
             res.locals.success_msg = req.flash('success_msg')
             res.locals.error_msg = req.flash('error_msg')
             res.locals.message = req.flash('message')
@@ -136,53 +145,55 @@ class App {
             next()
         })
     }
-    passport() {
+    private passport(): void {
         this.express.use(passport.initialize())
         this.express.use(passport.session())
     }
-    routes() {
+    private routes(): void {
         this.express.use(router)
     }
-    engine() {
+    private engine(): void {
         this.express.engine('hbs', hbs({
             defaultLayout: 'main.hbs',
             extname: 'hbs',
         }));
         this.express.set('view engine', 'hbs');
-        this.express.set("views", path.join(__dirname, '../', "/views/"))
+        this.express.set('views', path.join(__dirname, '../', '/views/'))
     }
 }
-module.exports = new App().express" >> src/app/App.js
+export default new App().express" >> src/app/App.ts
 ```
 *SERVER.JS*
 ```
-echo "const app = require("./app");
+echo "import app from './app/App'
 
 const port = 3000
 
 app.listen(process.env.PORT || port, () => {
     console.log('starter server in port: http://127.0.0.1:' + port)
-});" >> src/Server.js
+});" >> src/Server.ts
 ```
 **
+
 ```
 echo "
+
 class AdminProcedules{
-    async CreateAdmin(){
+    public async CreateAdmin(){
         try {
 
         } catch (error) {
 
         }
     }
-    async EditAdmin(){
+    public async EditAdmin(){
         try {
 
         } catch (error) {
 
         }
     }
-    async DeleteAdmin(){
+    public async DeleteAdmin(){
         try {
 
         } catch (error) {
@@ -191,57 +202,62 @@ class AdminProcedules{
     }
 }
 
-
-module.exports = new AdminProcedules" >> src/database/procedules/ExemplaProcedules.js
+export default new AdminProcedules" >> src/database/procedules/ExemplaProcedules.ts
 
 ```
-*src/database/settings/Sql.js*
+*src/database/settings/Sql.ts*
+
 ```
 echo "
-
 require('dotenv').config()
-const mysql = require('mysql2')
+import mysql from 'mysql2'
 
-
-const connection = mysql.createConnection({
+const conn = mysql.createConnection({
     host: process.env.DB_HOST,
-    port: '3306' || process.env.DB_PORT,
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
 })
 
+const db = conn.connect()
 
-
-module.exports = connection" >> src/database/settings/Sql.js
+export default db" >> src/database/settings/Sql.ts
 ```
+
+
 
 *src/database/settings/ConnSequelize.js*
+
 ```
 echo "require('dotenv').config()
-const mysql = require('mysql2')
+import {Sequelize} from 'sequelize'
 
 
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: '3306' || process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-})
-
-
-
-module.exports = connection" >> src/database/settings/ConnSequelize.js
+export const database = new Sequelize({
+  dialect: 'mysql',
+  host: process.env.DB_HOST,
+  port: '3306' || process.env.DB_PORT,
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  define:{
+    timestamps: true
+  }
+})" >> src/database/settings/ConnSequelize.ts
 ```
+
+
 
 *src/database/tables/ClientsTable.js* 
+
 ```
 echo "const { Model, DataTypes, Op } = require('sequelize');
-const bcrypt = require('bcrypt')
+import bcrypt from 'bcrypt'
+import { Sequelize } from 'sequelize/types';
+
 
 class ClientsTable extends Model {
-    static init(sequelize) {
+    static init(sequelize: Sequelize) {
         super.init({
             name: DataTypes.STRING,
             profile: DataTypes.STRING,
@@ -260,8 +276,8 @@ class ClientsTable extends Model {
     }
 
 
-    static hashPassword(models) {
-        this.beforeSave(async(client, options) => {
+    static hashPassword(models: void) {
+        this.beforeSave(async(client:any, options: any) => {
             const hash = await bcrypt.hash(client.password, 10)
             return client.password = hash
         })
@@ -270,12 +286,15 @@ class ClientsTable extends Model {
 }
 
 
-module.exports = ClientsTable" >> src/database/tables/ClientsTable.js
+export default ClientsTable" >> src/database/tables/ClientsTable.ts
 
 ```
-*src/middlewares/checkCredencials.js*
+
+
+*src/middlewares/checkCredencials.js* => falta passar para typescript
+
 ```
-echo "const passport = require('passport')
+echo "import passport from 'passport'
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
 const { dataUser } = require('../../data/user')
@@ -335,8 +354,8 @@ module.exports = function (passport) {
 
 ```
 
+*src/middlewares/auth.js* falta passar para Typescript
 
-*src/middlewares/auth.js*
 ```
 echo"module.exports = {
     auth: function(req, res, next) {
@@ -348,14 +367,15 @@ echo"module.exports = {
             res.redirect('/account/login')
         }
     }
-}" >> src/middlewares/auth.js
+}" >> src/middlewares/auth.ts
 ```
 
 
 
-*src/routes/Routes.js*
+*src/routes/Routes.ts
+
 ```
-echo"const express = require('express')
+echo "import express from 'express'
 const router = express.Router()
 
 //middlewares
@@ -367,27 +387,38 @@ const homeController = require('../controllers/homeController')
 //NAVIGATIONS ROUTES
 router.get('/new', homeController.index)
 
-module.exports = router" >> src/routes/Routes.js
+export default router" >> src/routes/Routes.ts
 ```
 
-*src/controllers/homeController.js*
+
+
+*src/controllers/homeController.ts*
+
 ```
-echo"class HomeController {
-    async index(req, res){
+echo "import {Request, Response} from 'express'
+
+class HomeController {
+    async index(req: Request, res: Response){
         res.render('home/index')
     }
 }
 
-module.exports = new HomeController" >> src/controllers/homeController.js
+export default new HomeController" >> src/controllers/homeController.ts
 ```
 
+
+
 *src/views/home/index.hbs*
+
 ```
-echo" 
+echo " 
 <h1> Hello Word </h1>" >> src/views/home/index.hbs
 ```
 
+
+
 *src/views/layouts/main.hbs*
+
 ```
 echo "<!DOCTYPE html>
 <html lang="pt-br">
