@@ -1,24 +1,4 @@
-npm init -y
-npm i bcrypt body-parser dotenv express express-flash express-handlebars express-session multer mysql mysql2 nodemailer passport passport-local sequelize sharp axios cors googleapis jsonwebtoken mercadopago nodemailer-express-handlebars cors
-npm i typescript -D
-npm i ts-node-dev -D
-npm i jest -D
-npx tsc --init
-npx jest --init
-npx tsc-jest -D
-npm i -D @types/express @types/express-handlebars  @types/body-parser @types/express-session @types/express-flash @types/cors @types/mysql @types/bcrypt @types/passport @types/passport-local
-mkdir tests src @types src/database src/database/settings src/database/tables src/database/migration src/database/procedules src/views src/views/layouts src/views/home src/views/partials src/public src/public/css src/public/js src/public/images src/controllers src/routes src/app src/config src/middlewares src/helpers src/models
-touch src/Server.ts src/app/App.ts  src/routes/Routes.ts src/database/settings/Sql.ts src/database/tables/ClientsTable.ts src/database/settings/ConnSequelize.ts src/config/ConnDatabase.ts src/views/home/index.hbs src/views/layouts/main.hbs src/views/partials/_nav.hbs src/views/partials/_footer.hbs src/controllers/homeController.ts src/middlewares/checkCredencials.ts src/middlewares/auth.ts src/database/procedules/ExemplaProcedules.ts ./.env
-echo "//criando req.status using typescript
-declare namespace Express {
-   export interface Request {
-      status?: string
-   }
-}" >> /src/@types/express.d.ts
-echo "*node_modules
-cmd.sh
-.env
-.dist" >> .gitignore
+#----------------------------------APP--------------------------
 echo "import express from 'express'
 import bodyParser from 'body-parser'
 import router from '../routes/Routes'
@@ -84,14 +64,20 @@ class App {
     }
 }
 export default new App().express
-" >> src/app/App.ts
+" >> ./src/app/App.ts
+
+# ------------------------- SERVER---------------------------
+
 echo "import app from './app/App'
 
 const port = 3000
 
 app.listen(process.env.PORT || port, () => {
     console.log('starter server in port: http://127.0.0.1:' + port)
-});" >> src/Server.ts
+});" >> ./src/Server.ts
+
+
+# ---------------------- PROCEDULES ----------------------------
 echo "
 
 class AdminProcedules{
@@ -118,7 +104,9 @@ class AdminProcedules{
     }
 }
 
-export default new AdminProcedules" >> src/database/procedules/ExemplaProcedules.ts
+export default new AdminProcedules" >> ./src/database/procedules/ExemplaProcedules.ts
+
+# ------------------------------ SETTINGS DATABASE ----------------------------
 echo "
 require('dotenv').config()
 import mysql from 'mysql2'
@@ -132,7 +120,8 @@ const conn = mysql.createConnection({
 
 const db = conn.connect()
 
-export default db" >> src/database/settings/Sql.ts
+export default db" >> ./src/database/settings/Sql.ts
+
 echo "require('dotenv').config()
 import {Sequelize} from 'sequelize'
 
@@ -147,7 +136,10 @@ export const database = new Sequelize({
   define:{
     timestamps: true
   }
-})" >> src/database/settings/ConnSequelize.ts
+})" >> ./src/database/settings/ConnSequelize.ts
+
+
+# -----------------------------------TABLES--------------------------
 
 echo "const { Model, DataTypes, Op } = require('sequelize');
 import bcrypt from 'bcrypt'
@@ -184,44 +176,10 @@ class ClientsTable extends Model {
 }
 
 
-export default ClientsTable" >> src/database/tables/ClientsTable.ts
-
-echo "const { Model, DataTypes, Op } = require('sequelize');
-import bcrypt from 'bcrypt'
-import { Sequelize } from 'sequelize/types';
+export default ClientsTable" >> ./src/database/tables/ClientsTable.ts
 
 
-class ClientsTable extends Model {
-    static init(sequelize: Sequelize) {
-        super.init({
-            name: DataTypes.STRING,
-            profile: DataTypes.STRING,
-            username: DataTypes.STRING,
-            email: DataTypes.STRING,
-            telephone: DataTypes.STRING,
-            password: DataTypes.STRING,
-            superuser: DataTypes.BOOLEAN,
-            dealers: DataTypes.BOOLEAN,
-            marketing: DataTypes.BOOLEAN,
-        }, {
-            sequelize,
-            tableName: 'solutionsAccount',
-
-        })
-    }
-
-
-    static hashPassword(models: void) {
-        this.beforeSave(async(client:any, options: any) => {
-            const hash = await bcrypt.hash(client.password, 10)
-            return client.password = hash
-        })
-    }
-
-}
-
-
-export default ClientsTable" >> src/database/tables/ClientsTable.ts
+# --------------------------------ROUTER ----------------------------
 echo "import express from 'express'
 const router = express.Router()
 
@@ -233,7 +191,12 @@ import homeController from '../controllers/homeController'
 //NAVIGATIONS ROUTES
 router.get('/', homeController.index)
 
-export default router" >> src/routes/Routes.ts
+export default router" >> ./src/routes/Routes.ts
+
+
+
+# -------------------------------CONTROLLERS ----------------------------
+
 echo "import {Request, Response} from 'express'
 
 class HomeController {
@@ -242,28 +205,19 @@ class HomeController {
     }
 }
 
-export default new HomeController" >> src/controllers/homeController.ts
+export default new HomeController" >> ./src/controllers/homeController.ts
+
+# ------------------------------VIEWS-----------------------------------
 echo "
     {{>_nav}}
     {{{body}}}
     {{>_footer}}
-" >> src/views/layouts/main.hbs
+" >> ./src/views/layouts/main.hbs
 echo "
-<h1> Hello Word </h1>" >> src/views/home/index.hbs
-echo "<nav>NAVIGATE</nav>" >> src/views/partials/_nav.hbs
-echo "<footer>FOOTER</footer>" >> src/views/partials/_footer.hbs
-echo "DB_HOST = localhost
-DB_PORT = 3306
-DB_NAME = solutionsTech
-DB_USER = dev
-DB_PASS = secret" >> ./.env
-echo "root = true
+<h1> Hello Word </h1>" >> ./src/views/home/index.hbs
+echo "<nav>NAVIGATE</nav>" >> ./src/views/partials/_nav.hbs
+echo "<footer>FOOTER</footer>" >> ./src/views/partials/_footer.hbs
 
-[*]
-indent_style = space
-indent_size = 4
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = false" >> .editorconfig
 
-echo "" >> tests/First.spec.ts
+#--------------------------------TESTES---------------------------
+echo "" >> ./tests/First.spec.ts
